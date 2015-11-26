@@ -1,0 +1,21 @@
+# V souboru jsou 4 body bez atributu a hranicnich znacek
+4 2 0 0      
+1 0.0 0.0
+2 1.0 0.0
+3 1.0 1.0
+4 0.0 1.0
+#
+# Hranice oblasti je tvorena 4 useckami bez atributu
+# 1 hranicni znacku nastavime takto:
+#  leva hranice  - znacka 10
+#  prava hranice - znacka 20
+#  dolni hranice - znacka 30
+#  horni hranice - znacka 40
+4 1
+1 1 2 30
+2 2 3 20
+3 3 4 40
+4 1 4 10
+#
+# V oblasti nejsou diry
+0
