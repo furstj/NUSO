@@ -10,6 +10,6 @@ all: ex 0x_dmplex
 
 ex: ex1 ex11
 
-0x_dmplex: 01_dmplex_basic 02_dmplex_gmsh
+0x_dmplex: 01_dmplex_basic 02_dmplex_gmsh 03_dmplex_gmsh
 
 

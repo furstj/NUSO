@@ -10,7 +10,7 @@ all: 0x_vector 1x_matrix 2x_dm 3x_snes 4x_ts
 
 0x_vector: 01_vector 02_vector 03_vector 04_vector 05_vector
 
-1x_matrix: 10_matrix 11_matrix 12_matrix_metis
+1x_matrix: 10_matrix 11_matrix 12_matrix_metis 
 
 2x_dm: 20_dm_laplace2d
 

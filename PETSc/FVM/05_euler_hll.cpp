@@ -5,7 +5,8 @@
   Pridan vypocet Jakobianu
 
   Tip:
-  time mpirun -np 4 ./04_euler_hll -ts_monitor -ts_final_time 50 -ts_type pseudo -snes_mf -ts_pseudo_max_dt 1.
+  time mpirun -np 4 ./05_euler_hll -ts_dt 1.0 -ts_monitor 
+  time mpirun -np 4 ./05_euler_hll -ts_typ pseudo -ts_pseudo_max_dt 5 -ts_monitor 
 */
 
 #include "ChannelGrid.hpp"
@@ -13,6 +14,7 @@
 
 #include <set>
 #include <vector>
+#include <array>
 #include <cmath>
 #include <cassert>
 #include <functional>
@@ -31,7 +33,15 @@ struct Model {
   double rhoU;
   double rhoV;
   double rhoE;
+
   static double kappa;
+  static constexpr size_t size() { return 4; }
+  double operator[](int i) const { return ((double*)this)[i]; }
+  double& operator[](int i) { return ((double*)this)[i]; }
+  const double* begin() const { return &this->rho; }
+  const double* end() const { return begin()+size(); }
+  double* begin() { return &this->rho; }
+  double* end()   { return begin()+size(); }
 };
 
 double Model::kappa = 1.4;
@@ -45,34 +55,26 @@ double SoundSpeed(const Model& W) {
 };
 
 Model& operator+=(Model& me, const Model& other) {
-  me.rho += other.rho;
-  me.rhoU += other.rhoU;
-  me.rhoV += other.rhoV;
-  me.rhoE += other.rhoE;
+  for (size_t i=0; i<me.size(); i++) 
+    me[i] += other[i];
   return me;
 };
 
 Model& operator-=(Model& me, const Model& other) {
-  me.rho -= other.rho;
-  me.rhoU -= other.rhoU;
-  me.rhoV -= other.rhoV;
-  me.rhoE -= other.rhoE;
+  for (size_t i=0; i<me.size(); i++) 
+    me[i] -= other[i];
   return me;
 };
 
 Model& operator/=(Model& me, double other) {
-  me.rho /= other;
-  me.rhoU /= other;
-  me.rhoV /= other;
-  me.rhoE /= other;
+  for (size_t i=0; i<me.size(); i++) 
+    me[i] /= other;
   return me;
 };
 
 Model& operator*=(Model& me, double other) {
-  me.rho *= other;
-  me.rhoU *= other;
-  me.rhoV *= other;
-  me.rhoE *= other;
+  for (size_t i=0; i<me.size(); i++) 
+    me[i] *= other;
   return me;
 };
 
@@ -131,12 +133,8 @@ double VelocityMag(const Model& W) {
 
 
 
-
-
-
-
 Vec CreateGhostedBlockVector(Grid& g, int blockSize) {
-auto dist = boost::any_cast<const Decomposition&>(g.userData());
+  auto dist = boost::any_cast<const Decomposition&>(g.userData());
 
   int n;
   ISLocalToGlobalMappingGetSize(dist.locToGlobMap, &n);
@@ -169,7 +167,7 @@ void Save(Vec u, const char* filename) {
   VecScatterBegin(ctx, u, uloc, INSERT_VALUES, SCATTER_FORWARD);
   VecScatterEnd(ctx, u, uloc, INSERT_VALUES, SCATTER_FORWARD);
 
-  int bs = sizeof(Model)/sizeof(double);
+  int bs = Model::size();
   cout << "bs = " << bs << endl;
   const PetscScalar *pu;
   VecGetArrayRead(uloc, &pu);
@@ -253,6 +251,7 @@ void CalculateRezidual(Grid& g, Vec u,
 
 struct MyContext {
   Grid* gptr;
+  Vec vol;
   std::map<int,BocoFunction> bocos;
 };
 
@@ -265,47 +264,108 @@ PetscErrorCode CalculateRHS(TS ts, PetscReal t, Vec u, Vec r, void* ctx) {
   CalculateRezidual(g, u, r, bocos);
 }
 
-PetscErrorCode  CalculateJacobian(TS ts,PetscReal t,Vec u, Mat*J, Mat*B, MatStructure*flag ,void* ctx) {
-  assert(true==false);
-  /*
+
+void FluxJacobian(std::function<Model(const Model&)> f, const Model& W, Model Df[] ) {
+  Model f0 = f(W);
+  const double eps = 1.e-8;
+  for (size_t j=0; j<Model::size(); j++) {
+    Model Weps(W);
+    Weps[j] += eps;
+    for (size_t i=0; i<Model::size(); i++) {
+      Model fEps = f(Weps);
+      Df[i][j] = (fEps[i] - f0[i]) / eps;
+    }
+  }
+}
+
+void UpdateJacobianBlock(Mat J, PetscInt bi, PetscInt bj, Model A[], double factor) {
+  const int n = Model::size();
+  double aa[n*n];
+  int ai[n], aj[n];
+  
+  int idx = 0;
+  for (int i=0; i<Model::size(); i++) 
+    for (int j=0; j<Model::size(); j++) 
+      aa[idx++] = factor * A[i][j];
+  
+  for (int i=0; i<Model::size(); i++) {
+    ai[i] = bi*n + i;
+    aj[i] = bj*n + i;
+  }
+  MatSetValues(J, n, ai, n, aj, aa, ADD_VALUES);
+}
+
+
+PetscErrorCode  CalculateJacobian(TS ts,PetscReal t,Vec u, Mat J, Mat B, void* ctx) {
+  //cout << "CALCULATE_JACOBIAN ...";
   Grid& g = *( static_cast<MyContext*>(ctx) -> gptr );
+  auto dist = boost::any_cast<const Decomposition&>(g.userData());
   BocoMap& bocos = static_cast<MyContext*>(ctx) -> bocos;
-  Mat jac = *B;
+  Vec vol = static_cast<MyContext*>(ctx) -> vol;
+
+  Mat jac = B;
+
+  MatZeroEntries(jac);
 
   VecGhostUpdateBegin(u, INSERT_VALUES,SCATTER_FORWARD);
   VecGhostUpdateEnd(u, INSERT_VALUES,SCATTER_FORWARD);
 
-  Vec uLoc;
-  const double* uLoc;
+  Vec uLoc, volLoc;
+  const double* ul;
   VecGhostGetLocalForm(u, &uLoc);  
   VecGetArrayRead(uLoc, &ul);
 
+  const double *volume;
+  VecGhostGetLocalForm(vol, &volLoc);  
+  VecGetArrayRead(volLoc, &volume);
+
   const Model *W = (Model*)(ul);
-  int blockSize = sizeof(Model)/sizeof(double);
+  int blockSize = Model::size();
 
   for (auto f: g.internalFaces()) {
-    auto flux = Flux( W[f.owner], W[f.neighbour], f.s);
-    R[f.owner] -= flux;
-    R[f.neighbour] += flux;
+    Model Al[Model::size()], Ar[Model::size()];
+   
+    int go = dist.GlobalIndex(f.owner);
+    int gn = dist.GlobalIndex(f.neighbour);
+
+    auto FWl = [&](const Model& Wl) { return Flux(Wl, W[f.neighbour], f.s); };
+    FluxJacobian(FWl, W[f.owner], Al);
+
+    auto FWr = [&](const Model& Wr) { return Flux(W[f.owner], Wr, f.s); };
+    FluxJacobian(FWr, W[f.neighbour], Ar);
+
+    double vol = 1.0/(Ny*Ny);
+
+    UpdateJacobianBlock(jac, go, go, Al, -1/volume[f.owner]);
+    UpdateJacobianBlock(jac, go, gn, Ar, -1/volume[f.owner]);
+
+    UpdateJacobianBlock(jac, gn, go, Al, 1/volume[f.neighbour]);
+    UpdateJacobianBlock(jac, gn, gn, Ar, 1/volume[f.neighbour]);
+    
   }
 
   for (auto bnd: g.boundaryPatches()) {
     auto bcf = bocos.at(bnd.first);
     for (auto f: bnd.second) {
-      R[f.owner] -= Flux( W[f.owner], bcf(W[f.owner],f.s), f.s);
+      Model Al[Model::size()];
+      auto FWl = [&](const Model& Wl) { return Flux(Wl, bcf(Wl,f.s), f.s); };
+      FluxJacobian(FWl, W[f.owner], Al);
+      int go = dist.GlobalIndex(f.owner);
+      UpdateJacobianBlock(jac, go, go, Al, -1/volume[f.owner]);
     }
   }
-
-  VecRestoreArray(rLoc, &rl);
-  VecGhostRestoreLocalForm(r, &rLoc);
   VecRestoreArrayRead(uLoc, &ul);
   VecGhostRestoreLocalForm(u, &uLoc);
 
-  //CalculateJ(g, u, r, bocos);
+  VecRestoreArrayRead(volLoc, &volume);
+  VecGhostRestoreLocalForm(vol, &volLoc);
+
   MatAssemblyBegin(jac,MAT_FINAL_ASSEMBLY);
   MatAssemblyEnd(jac,MAT_FINAL_ASSEMBLY);
-  *flag = SAME_NONZERO_PATTERN;
-  */
+
+  //MatView(J, PETSC_VIEWER_STDOUT_WORLD);
+  //cout << "END" << endl;
+  return 0;
 }
 
 int main(int argc, char **argv) {
@@ -320,7 +380,8 @@ int main(int argc, char **argv) {
   
   Mat J;
   MatCreate(PETSC_COMM_WORLD, &J);
-  MatSetSizes(J, PETSC_DECIDE, g.cells().size()*modelSize, Nx*Ny*modelSize, PETSC_DECIDE);
+  MatSetSizes(J, g.cells().size()*modelSize, g.cells().size()*modelSize, 
+	      PETSC_DECIDE, PETSC_DECIDE);
   MatSetFromOptions(J);
   MatSetUp(J);
 
@@ -330,33 +391,43 @@ int main(int argc, char **argv) {
   VecDuplicate(u, &r);
   double dt = 0.1 / (2.5*Nx/3);
   
-  // Pocatecni podminka (TODO: nastavit jen mou lokalni cast);
-  for (int i=0; i<Nx*Ny; i++) {
-    double W0[] = {1.0, 0.1, 0.0, 3.0 };
-    VecSetValuesBlocked(u, 1, &i, W0, INSERT_VALUES);
-  };
-  VecAssemblyBegin(u);
-  VecAssemblyEnd(u);
-  
   MyContext ctx;
   ctx.gptr = &g;
+  ctx.vol = CreateGhostedBlockVector(g, 1);
   // Okrajove podminky
   ctx.bocos[BND_LEFT]   = InletBoco;
   ctx.bocos[BND_RIGHT]  = OutletBoco;
   ctx.bocos[BND_TOP]    = WallBoco;
   ctx.bocos[BND_BOTTOM] = WallBoco;
 
+  // Pocatecni podminka 
+  int istart, iend;
+  VecGetOwnershipRange(ctx.vol, &istart, &iend);
+  for (int i=istart; i<iend; i++) {
+    double W0[] = {1.0, 0.1, 0.0, 3.0 };
+    VecSetValuesBlocked(u, 1, &i, W0, INSERT_VALUES);
+    VecSetValue(ctx.vol, i, g.cells()[i-istart].vol, INSERT_VALUES);
+  };
+  VecAssemblyBegin(u);
+  VecAssemblyEnd(u);
+  VecAssemblyBegin(ctx.vol);
+  VecAssemblyEnd(ctx.vol);
+  VecGhostUpdateBegin(ctx.vol, INSERT_VALUES,SCATTER_FORWARD);
+  VecGhostUpdateEnd(ctx.vol, INSERT_VALUES,SCATTER_FORWARD);
+  
   double t = 0;
-  double tEnd = 30.;
+  double tEnd = 50.;
 
   TS ts;
   TSCreate(PETSC_COMM_WORLD, &ts);
   TSSetProblemType(ts, TS_NONLINEAR);
   TSSetSolution(ts, u);
   TSSetRHSFunction(ts, NULL, CalculateRHS, &ctx);
+  TSSetRHSJacobian(ts, J, J, CalculateJacobian, &ctx);
   TSSetType(ts, TSEULER);
   TSSetInitialTimeStep(ts, 0.0, dt);
   TSSetDuration(ts, 10000000, tEnd);
+  TSSetType(ts, TSBEULER);
   TSSetFromOptions(ts);
   
   TSSolve(ts, u);

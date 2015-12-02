@@ -20,6 +20,12 @@ Decomposition::Decomposition(PetscInt istart, PetscInt iend, const Grid::FaceLis
 			       PETSC_COPY_VALUES, &locToGlobMap);
 }
 
+PetscInt Decomposition::GlobalIndex(PetscInt local) const {
+  PetscInt global;
+  ISLocalToGlobalMappingApply(locToGlobMap, 1, &local, &global);
+  return global;
+}
+
 /* 
    Rozdeleni site mezi procesory takto:
    1) vrcholy jsou nakopirovany na vsechny procesory
