@@ -35,7 +35,7 @@ struct Decomposition {
     cellEnd(iend)
   {
     std::set<PetscInt> ghosts;
-    for (auto f: faces)
+    for (auto f: faces) // if neighbour is on different CPU
       if ((f.neighbour < istart || iend <= f.neighbour) && f.neighbour >= 0) 
 	ghosts.insert(f.neighbour);
 

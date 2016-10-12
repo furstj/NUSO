@@ -7,6 +7,7 @@
   Tip:
   time mpirun -np 4 ./05_euler_hll -ts_dt 1.0 -ts_monitor 
   time mpirun -np 4 ./05_euler_hll -ts_typ pseudo -ts_pseudo_max_dt 5 -ts_monitor 
+  time mpirun -np 4 ./05_euler_hll -ts_monitor -ts_type pseudo -snes_mf -ts_pseudo_max_dt 1.
 */
 
 #include "ChannelGrid.hpp"
@@ -428,6 +429,7 @@ int main(int argc, char **argv) {
   TSSetInitialTimeStep(ts, 0.0, dt);
   TSSetDuration(ts, 10000000, tEnd);
   TSSetType(ts, TSBEULER);
+  TSSetExactFinalTime(ts, TS_EXACTFINALTIME_MATCHSTEP);
   TSSetFromOptions(ts);
   
   TSSolve(ts, u);
