@@ -14,6 +14,18 @@ Software" at the Czech Technical University in Prague.
 
 ## LU benchmark
 * [lecture notes](lu_benchmark.ipynb)
- 
+
+## BLAS & LAPACK
+* BLAS lvl 1 via Fortran interface [fblas1.cpp](BlasLapack/fblas1.cpp)
+* BLAS lvl 1 via Cblas interface [cblas1.cpp](BlasLapack/cblas1.cpp)
+* BLAS lvl 2, full matrix [cblas2.cpp](BlasLapack/cblas2.cpp)
+* BLAS lvl 2, symmetric matrix [cblas2_dsymv.cpp](BlasLapack/cblas2_dsymv.cpp)
+* BLAS lvl 2, symmetric packed matrix [cblas2_dspmv.cpp](BlasLapack/cblas2_dspmv.cpp)
+* BLAS lvl 2, banded matrix [cblas2_dgbmv.cpp](BlasLapack/cblas2_dgbmv.cpp)
+* BLAS lvl 3, full matrix [cblas3_dgemm.cpp](BlasLapack/cblas3_dgemm.cpp)
+
+* LAPACKe, $A x = b$, simple driver [lapack_gesv.cpp](BlasLapack/lapack_gesv.cpp)
+* LAPACKe, $A x = b$, expert driver [lapack_gesvx.cpp](BlasLapack/lapack_gesvx.cpp)
+
 ## [PETSc](http://www.mcs.anl.gov/petsc)
 	

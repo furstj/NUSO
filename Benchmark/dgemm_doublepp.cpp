@@ -12,7 +12,6 @@ double** allocate_matrix(int n, int m) {
 }
 
 int main() {
-  const int lda = 1001;
   const int n = 1000;
   
   auto a = allocate_matrix(n, n);
@@ -27,8 +26,8 @@ int main() {
 
   auto t1 = chrono::high_resolution_clock::now();
   
-    for (int j=0; j<n; j++) 
-  for (int i=0; i<n; i++)
+  for (int j=0; j<n; j++) 
+    for (int i=0; i<n; i++)
       {
 	c[i][j] = 0.0;
 	for (int k=0; k<n; k++)

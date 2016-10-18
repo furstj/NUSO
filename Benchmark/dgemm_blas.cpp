@@ -7,8 +7,8 @@ using namespace std;
 
 
 int main() {
-  const int lda = 2000;
-  const int n = 2000;
+  const int lda = 1000;
+  const int n = 1000;
   
   double* a = new double[lda*lda];
   double* b = new double[lda*lda];
