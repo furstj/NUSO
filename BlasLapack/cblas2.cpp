@@ -17,6 +17,7 @@ public:
 
   size_t rows() const { return rows_; }
   size_t cols() const { return cols_; }
+  size_t lda() const { return cols_; }
   double* data() { return data_; }
 
   double* operator[](int row) { return data_ + row*cols_; }
@@ -45,9 +46,9 @@ int main() {
     y[i] = 3.0;
   }
     
-  // y = alpha * A + beta * y
+  // y = alpha * A * x + beta * y
   cblas_dgemv(CblasRowMajor, CblasNoTrans, 
-	      A.rows(), A.cols(), alpha, A.data(), A.rows(),
+	      A.rows(), A.cols(), alpha, A.data(), A.lda(),
 	      x, 1, 
 	      beta, y, 1);
 
