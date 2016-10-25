@@ -5,7 +5,7 @@ Software" at the Czech Technical University in Prague.
 
 
 ## MATMUL benchmark
-* [lecture notes](matmul_benchmark.ipynb)
+* [lecture notes](notebooks/matmul_benchmark.ipynb)
 * matmul with double pointer [dgemm_double.cpp](Benchmark/dgemm_doublepp.cpp)
 * matmul with plain array [dgemm.cpp](Benchmark/dgemm.cpp)
 * matmul with simple Matrix class [dgemm_class.cpp](Benchmark/dgemm_class.cpp)
@@ -13,7 +13,7 @@ Software" at the Czech Technical University in Prague.
 
 
 ## LU benchmark
-* [lecture notes](lu_benchmark.ipynb)
+* [lecture notes](notebooks/lu_benchmark.ipynb)
 
 ## BLAS & LAPACK
 * BLAS lvl 1 via Fortran interface [fblas1.cpp](BlasLapack/fblas1.cpp)
@@ -26,6 +26,19 @@ Software" at the Czech Technical University in Prague.
 
 * LAPACKe, $A x = b$, simple driver [lapack_gesv.cpp](BlasLapack/lapack_gesv.cpp)
 * LAPACKe, $A x = b$, expert driver [lapack_gesvx.cpp](BlasLapack/lapack_gesvx.cpp)
+
+* ScaLAPACK, $A x = b$, [scalapack_example.f](BlasLapack/scalapack_example.f),
+  test matrix [m1000](BlasLapack/m1000)
+  
+## MPI
+* Basic example [basic.cpp](MPI/basic.cpp)
+* Basic example with send/recieve [basic_send.cpp](MPI/basic_send.cpp)
+* Laplace equation, static data [laplace-mpi1.cpp](MPI/laplace-mpi1.cpp)
+* Laplace equation, dynamic allocation [laplace-mpi_dynamic1.cpp](MPI/laplace-mpi_dynamic1.cpp)
+* Laplace equation, dynamic allocation, improved [laplace-mpi_dynamic2.cpp](MPI/laplace-mpi_dynamic2.cpp)
+
+## Error analysis
+* [lecture notes](notebooks/error_analysis.ipynb)
 
 ## [PETSc](http://www.mcs.anl.gov/petsc)
 	
