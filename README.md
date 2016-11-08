@@ -24,10 +24,10 @@ Software" at the Czech Technical University in Prague.
 * BLAS lvl 2, banded matrix [cblas2_dgbmv.cpp](BlasLapack/cblas2_dgbmv.cpp)
 * BLAS lvl 3, full matrix [cblas3_dgemm.cpp](BlasLapack/cblas3_dgemm.cpp)
 
-* LAPACKe, $A x = b$, simple driver [lapack_gesv.cpp](BlasLapack/lapack_gesv.cpp)
-* LAPACKe, $A x = b$, expert driver [lapack_gesvx.cpp](BlasLapack/lapack_gesvx.cpp)
+* LAPACKe, *A x = b*, simple driver [lapack_gesv.cpp](BlasLapack/lapack_gesv.cpp)
+* LAPACKe, *A x = b* expert driver [lapack_gesvx.cpp](BlasLapack/lapack_gesvx.cpp)
 
-* ScaLAPACK, $A x = b$, [scalapack_example.f](BlasLapack/scalapack_example.f),
+* ScaLAPACK, *A x = b*, [scalapack_example.f](BlasLapack/scalapack_example.f),
   test matrix [m1000](BlasLapack/m1000)
   
 ## MPI
