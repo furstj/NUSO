@@ -40,6 +40,12 @@ Software" at the Czech Technical University in Prague.
 * Helmholtz equation, better implementation [helmholtz-serialized.cpp](MPI/helmholtz-serialized.cpp)
 * Helmholtz equation, good implementation [helmholtz-fast.cpp](MPI/helmholtz-fast.cpp)
 
+## UMFPACK
+* Basic example [umfpack_simple.c](Umfpack/umfpack_simple.c)
+* Advanced example, C++,  [example.cpp](Umfpack/example.cpp)
+* Advanced example, large matrix,  [poisson3Da.cpp](Umfpack/poisson3Da.cpp)
+* Advanced example, MKL version,  [poisson3Da_dss.cpp](Umfpack/poisson3Da_dss.cpp)
+
 ## Error analysis
 * [lecture notes](notebooks/error_analysis.ipynb)
 
