@@ -36,6 +36,9 @@ Software" at the Czech Technical University in Prague.
 * Laplace equation, static data [laplace-mpi1.cpp](MPI/laplace-mpi1.cpp)
 * Laplace equation, dynamic allocation [laplace-mpi_dynamic1.cpp](MPI/laplace-mpi_dynamic1.cpp)
 * Laplace equation, dynamic allocation, improved [laplace-mpi_dynamic2.cpp](MPI/laplace-mpi_dynamic2.cpp)
+* Helmholtz equation, wrong implementation (deadlock)  [helmholtz-deadlock.cpp](MPI/helmholtz-deadlock.cpp)
+* Helmholtz equation, better implementation [helmholtz-serialized.cpp](MPI/helmholtz-serialized.cpp)
+* Helmholtz equation, good implementation [helmholtz-fast.cpp](MPI/helmholtz-fast.cpp)
 
 ## Error analysis
 * [lecture notes](notebooks/error_analysis.ipynb)

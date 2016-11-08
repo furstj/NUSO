@@ -5,7 +5,7 @@
 /*
   Solution of u - u_xx = f with homogeneous Dirichlet boundary conditions
 
-  NOTE: Bad communication pattern - implicit serialization
+  NOTE: Correct implementation
  */
 
 const int N = 10;   // Number of points per CPU
