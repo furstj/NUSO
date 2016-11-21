@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
 
   // Vytvoreni distribuovaneho obrazku
   DM da;
-  DMDACreate2d(PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE,DMDA_BOUNDARY_NONE,
+  DMDACreate2d(PETSC_COMM_WORLD, DM_BOUNDARY_NONE,DM_BOUNDARY_NONE,
              DMDA_STENCIL_STAR,
 	     width, height, PETSC_DECIDE, PETSC_DECIDE, 
 	     1, 1, PETSC_NULL, PETSC_NULL, &da);

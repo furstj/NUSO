@@ -30,6 +30,9 @@ Software" at the Czech Technical University in Prague.
 * ScaLAPACK, *A x = b*, [scalapack_example.f](BlasLapack/scalapack_example.f),
   test matrix [m1000](BlasLapack/m1000)
   
+## Error analysis
+* [lecture notes](notebooks/error_analysis.ipynb)
+
 ## MPI
 * Basic example [basic.cpp](MPI/basic.cpp)
 * Basic example with send/recieve [basic_send.cpp](MPI/basic_send.cpp)
@@ -46,8 +49,6 @@ Software" at the Czech Technical University in Prague.
 * Advanced example, large matrix,  [poisson3Da.cpp](Umfpack/poisson3Da.cpp)
 * Advanced example, MKL version,  [poisson3Da_dss.cpp](Umfpack/poisson3Da_dss.cpp)
 
-## Error analysis
-* [lecture notes](notebooks/error_analysis.ipynb)
 
 ## [PETSc](http://www.mcs.anl.gov/petsc)
 	

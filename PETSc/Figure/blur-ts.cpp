@@ -37,7 +37,7 @@ struct AppCtx {
 
   AppCtx() {
     // Vytvoreni distribuovaneho obrazku
-    DMDACreate2d(PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE,DMDA_BOUNDARY_NONE,
+    DMDACreate2d(PETSC_COMM_WORLD, DM_BOUNDARY_NONE,DM_BOUNDARY_NONE,
              DMDA_STENCIL_STAR,
 	     width, height, PETSC_DECIDE, PETSC_DECIDE, 
 	     1, 1, PETSC_NULL, PETSC_NULL, &da);
@@ -83,19 +83,22 @@ PetscErrorCode FormFunction(TS ts, PetscReal t, Vec in, Vec out,
 }
 
 // Vypocet priblizneho Jakobianu prave strany
-PetscErrorCode FormJacobian(TS ts,PetscReal t,Vec in,Mat *A,Mat *B, 
-			    MatStructure *str, void *ctx) {
+PetscErrorCode FormJacobian(TS ts,PetscReal t,Vec in,Mat J,Mat B, void *ctx) {
   int i1, i2;
-  MatGetOwnershipRange(*A, &i1, &i2);
+  MatGetOwnershipRange(B, &i1, &i2);
   for (int i=i1; i<i2; i++) {
-    MatSetValue(*A, i, i, -4, INSERT_VALUES);
-    if (i+1<i2) MatSetValue(*A, i, i+1, 1, INSERT_VALUES);
-    if (i-1>=i1) MatSetValue(*A, i, i-1, 1, INSERT_VALUES);
+    MatSetValue(B, i, i, -4, INSERT_VALUES);
+    if (i+1<i2) MatSetValue(B, i, i+1, 1, INSERT_VALUES);
+    if (i-1>=i1) MatSetValue(B, i, i-1, 1, INSERT_VALUES);
   }
-  MatAssemblyBegin(*A, MAT_FINAL_ASSEMBLY);
-  MatAssemblyEnd(*A, MAT_FINAL_ASSEMBLY);
+  MatAssemblyBegin(B, MAT_FINAL_ASSEMBLY);
+  MatAssemblyEnd(B, MAT_FINAL_ASSEMBLY);
 
-  *str = SAME_NONZERO_PATTERN;
+  if (J != B) {
+    MatAssemblyBegin(J, MAT_FINAL_ASSEMBLY);
+    MatAssemblyEnd(J, MAT_FINAL_ASSEMBLY);
+  }
+
   return 0;
 }
 
@@ -160,6 +163,7 @@ int main(int argc, char** argv) {
   TSSetInitialTimeStep(ts,0.0,dt);
   TSSetType(ts, TSBEULER);
   TSSetDuration(ts, 1000, t_end);
+  TSSetExactFinalTime(ts,TS_EXACTFINALTIME_STEPOVER);
 
   // Nacteni parametru z prikazove radky
   TSSetFromOptions(ts);
