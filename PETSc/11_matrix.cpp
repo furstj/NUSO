@@ -63,6 +63,6 @@ int main(int argc,char **args)
   VecDestroy(&y);
 
   CHKERRQ( PetscFinalize() );
-  
+
   return 0;
 }
