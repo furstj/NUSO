@@ -240,6 +240,7 @@ int main(int argc, char **argv) {
   TSSetInitialTimeStep(ts, 0.0, dt);
   TSSetDuration(ts, 1000000, t_end);
   TSSetType(ts, TSBEULER);
+  TSSetExactFinalTime(ts, TS_EXACTFINALTIME_MATCHSTEP);
   TSSetFromOptions(ts);
 
   cout << "Reseni ODE" << endl; 
