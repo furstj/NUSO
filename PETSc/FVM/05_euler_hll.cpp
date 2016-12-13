@@ -6,8 +6,8 @@
 
   Tip:
   time mpirun -np 4 ./05_euler_hll -ts_dt 1.0 -ts_monitor 
-  time mpirun -np 4 ./05_euler_hll -ts_typ pseudo -ts_pseudo_max_dt 5 -ts_monitor 
-  time mpirun -np 4 ./05_euler_hll -ts_monitor -ts_type pseudo -snes_mf -ts_pseudo_max_dt 1.
+  time mpirun -np 4 ./05_euler_hll -ts_monitor -ts_type pseudo -ts_pseudo_max_dt 5 
+  time mpirun -np 4 ./05_euler_hll -ts_monitor -ts_type pseudo -ts_pseudo_max_dt 1. -snes_mf
 */
 
 #include "ChannelGrid.hpp"
