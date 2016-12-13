@@ -35,7 +35,6 @@ Mat CreateMatrix(int n, AO ao, int localSize) {
   Mat A;
   MatCreate(PETSC_COMM_WORLD, &A);
   MatSetSizes(A, localSize, localSize, n, n);
-    
   MatSetFromOptions(A);
   MatSetUp(A);
 
@@ -90,13 +89,12 @@ Mat CreateAdjacencyMatrix(int n) {
 int main(int argc,char **args)
 {
   const int n = 10; // Velikost matice
-  int myCpu;
-  int mySize;
+  int myCpu, nCpus;
 
   // Inicializace 
   PetscInitialize( &argc , &args , (char *)0 , 0 );
   MPI_Comm_rank(PETSC_COMM_WORLD, &myCpu);
-  MPI_Comm_size(PETSC_COMM_WORLD, &mySize);
+  MPI_Comm_size(PETSC_COMM_WORLD, &nCpus);
 
   // Vytvoreni nenulove struktury matice 
   Mat Adj = CreateAdjacencyMatrix(n);
@@ -122,14 +120,8 @@ int main(int argc,char **args)
   PetscPrintf(PETSC_COMM_WORLD, "\nRenumbering:\n");
   AOView(ao, PETSC_VIEWER_STDOUT_WORLD);
 
-  // Kolik prvku by melo padnout na dany procesor
-  int localSize[mySize];
-  ISPartitioningCount(partCpu, mySize, localSize);
-  if (myCpu==0) {
-    std::cout << "Local sizes:" << std::endl;
-    for (int i=0; i<mySize; i++) 
-      std::cout << localSize[i] << std::endl;
-  }
+  PetscInt localSize[nCpus];
+  ISPartitioningCount(partCpu, nCpus, localSize);
 
   // Vytvoreni prerovnane matice a prave strany
   Mat A = CreateMatrix(n, ao, localSize[myCpu]);

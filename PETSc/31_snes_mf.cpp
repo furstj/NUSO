@@ -48,6 +48,11 @@ PetscErrorCode CalculateJacobian(SNES snes, Vec x, Mat J, Mat P, void* ctx) {
   MatAssemblyBegin(P, MAT_FINAL_ASSEMBLY);
   MatAssemblyEnd(P, MAT_FINAL_ASSEMBLY);
 
+  if (J != P) {
+    MatAssemblyBegin(J, MAT_FINAL_ASSEMBLY);
+    MatAssemblyEnd(J, MAT_FINAL_ASSEMBLY);
+  };
+
   VecRestoreArrayRead(x, &xl);
 
   return 0;
@@ -81,6 +86,7 @@ int main(int argc, char** argv) {
 
   Mat J;
   MatCreateSNESMF(snes, &J);
+
   SNESSetJacobian(snes, J, P, CalculateJacobian, NULL);
   SNESSetFromOptions(snes);
 
