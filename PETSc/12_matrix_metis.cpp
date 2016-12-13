@@ -5,6 +5,19 @@
   sude prvky tvori druhou kliku a navice je vrchol 0 spojen s vrcholem 1.
   
   Program je urcen pro 2 procesory, mel by ale fungovat pro libovolny pocet.
+
+
+  Vhodne rozdeleni na 2 procesory bude takove, ze sude prvky budou na 
+  procesoru 0 a liche prvky na procesoru 1.
+
+  tj. vektor 
+  0 1 2 3 4 5 6 7 8 9
+
+  bude prerovnan a rozdelen takto:
+  0 2 4 6 8 | 1 3 5 7 9
+
+  Chceme-li tedy zapsat prvek na pozici 3 v puvodnim (aplikacnim) cislovani, 
+  musime ho ulozit do PETSc vektoru na pozici 6.
  */
 
 #include <iostream>
@@ -18,10 +31,11 @@
 
 // Vytvoreni matice s danou permutaci
 // na diagonale je i+n, mimo diagonalu je -1
-Mat CreateMatrix(int n, AO ao) {
+Mat CreateMatrix(int n, AO ao, int localSize) {
   Mat A;
   MatCreate(PETSC_COMM_WORLD, &A);
-  MatSetSizes(A, PETSC_DECIDE, PETSC_DECIDE, n, n);
+  MatSetSizes(A, localSize, localSize, n, n);
+    
   MatSetFromOptions(A);
   MatSetUp(A);
 
@@ -62,7 +76,7 @@ Mat CreateMatrix(int n, AO ao) {
    Zde je ale pouzito vytvoreni pomoci MatConvert
 */
 Mat CreateAdjacencyMatrix(int n) {
-  Mat A = CreateMatrix(n, PETSC_NULL);
+  Mat A = CreateMatrix(n, PETSC_NULL, PETSC_DECIDE);
 
   Mat Adj;
   MatConvert(A, MATMPIADJ, MAT_INITIAL_MATRIX, &Adj);
@@ -77,10 +91,12 @@ int main(int argc,char **args)
 {
   const int n = 10; // Velikost matice
   int myCpu;
+  int mySize;
 
   // Inicializace 
   PetscInitialize( &argc , &args , (char *)0 , 0 );
   MPI_Comm_rank(PETSC_COMM_WORLD, &myCpu);
+  MPI_Comm_size(PETSC_COMM_WORLD, &mySize);
 
   // Vytvoreni nenulove struktury matice 
   Mat Adj = CreateAdjacencyMatrix(n);
@@ -106,8 +122,17 @@ int main(int argc,char **args)
   PetscPrintf(PETSC_COMM_WORLD, "\nRenumbering:\n");
   AOView(ao, PETSC_VIEWER_STDOUT_WORLD);
 
+  // Kolik prvku by melo padnout na dany procesor
+  int localSize[mySize];
+  ISPartitioningCount(partCpu, mySize, localSize);
+  if (myCpu==0) {
+    std::cout << "Local sizes:" << std::endl;
+    for (int i=0; i<mySize; i++) 
+      std::cout << localSize[i] << std::endl;
+  }
+
   // Vytvoreni prerovnane matice a prave strany
-  Mat A = CreateMatrix(n, ao);
+  Mat A = CreateMatrix(n, ao, localSize[myCpu]);
   PetscPrintf(PETSC_COMM_WORLD, "\nMatrix:\n");
   MatView(A, PETSC_VIEWER_STDOUT_WORLD);
 
