@@ -57,27 +57,28 @@ Software" at the Czech Technical University in Prague.
 
 ## Zápočtové úlohy
 
-* Matice $L$ je pěti-diagonální matice o rozměrech $n \times n$, 
-  diagonální prvky jsou $L_{ii}=4$, navedlejších diagonálách je 
-  $L_{i,i+1}=-1$ a $L_{i,i-1}=-1$, na vedlejších diagonálách vzdálených o
-  $m=int(\sqrt{n})$ je $L_{i,i \pm m}=-1$.
+* Matice *L* je pěti-diagonální matice o rozměrech $n \times n$, 
+  diagonální prvky jsou *L(i,i)=4*, 
+  na vedlejších diagonálách je *L(i,i±1)=-1* 
+  a na vedlejších diagonálách vzdálených o
+  *m=int(sqrt(n))* je *L(i,i±m}=-1*.
   
 ### Úloha 1 
-	Určete vlastní čísla matice $L$ pro $n=1000$. 
+	Určete vlastní čísla matice *L* pro *n=1000*. 
 	Pro výpočet použijte knihovnu LAPACK.
 
 ### Úloha 2 
-	Určete řešení soustavy $Lx=b$ pro $n=1000$, $b_i=2$. 
+	Určete řešení soustavy *Lx=b* pro *n=1000*, *bᵢ=2*. 
 	Pro výpočet použijte knihovnu LAPACK.
 
 ### Úloha 3 
-	Určete řešení soustavy $Lx=b$ pro $n=10000$, $b_i=2$. 
+	Určete řešení soustavy *Lx=b* pro *n=10000*, *bᵢ=2*. 
 	Pro výpočet použijte knihovnu UMFPack.
 
 ### Úloha 4 
-	Určete řešení soustavy $Lx=b$ pro $n=100000$, $b_i=2$. 
+	Určete řešení soustavy *Lx=b* pro $n=100000$, *bᵢ=2*. 
 	Pro výpočet použijte knihovnu PETSc.
 
 ### Úloha 5 
-	Určete řešení soustavy $Lx=b$ pro $n=1000000$, $b_i=2$. 
+	Určete řešení soustavy *Lx=b* pro *n=1000000*, *bᵢ=2*. 
 	Pro výpočet použijte knihovnu PETSc v paralelní verzi.
