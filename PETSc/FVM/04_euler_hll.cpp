@@ -133,7 +133,7 @@ double VelocityMag(const Model& W) {
 
 
 Vec CreateGhostedBlockVector(Grid& g, int blockSize) {
-auto dist = boost::any_cast<const Decomposition&>(g.userData());
+  auto dist = boost::any_cast<const Decomposition&>(g.userData());
 
   int n;
   ISLocalToGlobalMappingGetSize(dist.locToGlobMap, &n);
