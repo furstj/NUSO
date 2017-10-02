@@ -3,7 +3,7 @@
   Program pro reseni Eulerovych rovnic v oblasti ve tvaru kanalu
 
   Tip:
-  time mpirun -np 4 ./04_euler_hll -ts_monitor -ts_final_time 50 -ts_type pseudo -snes_mf -ts_pseudo_max_dt 1.
+  time mpirun -x LD_LIBRARY_PATH -np 4 ./04_euler_hll -ts_monitor -ts_final_time 50 -ts_type pseudo -snes_mf -ts_pseudo_max_dt 1.
 */
 
 #include "ChannelGrid.hpp"

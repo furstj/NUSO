@@ -5,8 +5,8 @@
   Pridan vypocet Jakobianu
 
   Tip:
-  time mpirun -np 4 ./05_euler_hll -ts_dt 1.0 -ts_monitor 
-  time mpirun -np 4 ./05_euler_hll -ts_typ pseudo -ts_pseudo_max_dt 5 -ts_monitor 
+  time /usr/lib64/openmpi/bin/mpiexec -np 4 -x LD_LIBRARY_PATH ./05_euler_hll -ts_dt 1.0 -ts_monitor 
+  time /usr/lib64/openmpi/bin/mpiexec -np 4 -x LD_LIBRARY_PATH ./05_euler_hll -ts_type pseudo -ts_pseudo_max_dt 5 -ts_monitor 
 */
 
 #include "ChannelGrid.hpp"
