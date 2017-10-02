@@ -1,12 +1,17 @@
 CC  = mpic++
 CXX = mpic++
-CXXFLAGS = -std=c++11 -g
+CXXFLAGS = -std=c++11 -g -O
 
 CFLAGS  += `pkg-config --cflags PETSc`
 CXXFLAGS  += `pkg-config --cflags PETSc`
 LDFLAGS += `pkg-config --libs PETSc`
 
-all: 01_scalar_upwind 02_scalar_upwind 03_scalar_upwind_ts 04_euler_hll 05_euler_hll
+TARGETS = 01_scalar_upwind 02_scalar_upwind 03_scalar_upwind_ts 04_euler_hll 05_euler_hll
+
+all: $(TARGETS)
+
+clean:
+	rm -f $(TARGETS) *.o
 
 01_scalar_upwind: 01_scalar_upwind.o CartesianGrid.o Grid.o 
 

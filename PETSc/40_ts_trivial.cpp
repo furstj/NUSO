@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
   TSSetSolution(ts, x);  // Pocatecni podminka
   TSSetTimeStep(ts, 0.01);
   TSSetDuration(ts, 1000000, 1.0);
-
+  TSSetExactFinalTime(ts, TS_EXACTFINALTIME_MATCHSTEP);
   TSSetFromOptions(ts);
 
   TSSolve(ts, x);

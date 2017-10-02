@@ -1,3 +1,6 @@
+// FEM 
+// sestaveni matice na prvnim procesoru, reseni soustavy paralelne
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -88,9 +91,11 @@ int main(int argc, char **argv) {
   PetscInitialize( &argc, &argv, (char *)0, 0 );
   MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
 
-  nacti_sit("ctverec.2");
+  if (rank==0) 
+    nacti_sit("ctverec.2");
 
   int n = node.size();
+  MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
   valarray<double> u(node.size());
   valarray<double> f(node.size());
@@ -110,19 +115,21 @@ int main(int argc, char **argv) {
   VecSetFromOptions(b);
   VecSetSizes(b, PETSC_DECIDE, n);
 
-  for (size_t e=0; e<elem.size(); ++e) {   // Sestaveni matice
-    Point p1 = node[elem[e].id[0]];
-    Point p2 = node[elem[e].id[1]];
-    Point p3 = node[elem[e].id[2]];
-    double vol = volume(p1, p2, p3);
+  if (rank==0) {
+
+    for (size_t e=0; e<elem.size(); ++e) {   // Sestaveni matice
+      Point p1 = node[elem[e].id[0]];
+      Point p2 = node[elem[e].id[1]];
+      Point p3 = node[elem[e].id[2]];
+      double vol = volume(p1, p2, p3);
       
-    for (int ii=0; ii<3; ++ii) {       // Doplnim radek i
-      int i = elem[e].id[ii];
-      
-      if (flag[i]==0) {              // Vrchol i je vnitrni bod
-	VecSetValue(b, i, f[i]*vol/3, ADD_VALUES);
+      for (int ii=0; ii<3; ++ii) {       // Doplnim radek i
+	int i = elem[e].id[ii];
 	
-	double phi[3] = {0, 0, 0};
+	if (flag[i]==0) {              // Vrchol i je vnitrni bod
+	  VecSetValue(b, i, f[i]*vol/3, ADD_VALUES);
+	  
+	  double phi[3] = {0, 0, 0};
 	  phi[ii] = 1;
 	  Point gradI = grad(p1,phi[0], p2,phi[1], p3,phi[2]);
 	  
@@ -137,19 +144,20 @@ int main(int argc, char **argv) {
 	      MatSetValue(A, i, j, -prod, ADD_VALUES);
 	    }
 	  }
-      }
-      else {                      // Vrchol i je hranicni bod
-	VecSetValue(b, i, 0.0, ADD_VALUES);
-	MatSetValue(A,i,i,1.0,ADD_VALUES);
+	}
+	else {                      // Vrchol i je hranicni bod
+	  VecSetValue(b, i, 0.0, ADD_VALUES);
+	  MatSetValue(A,i,i,1.0,ADD_VALUES);
+	}
       }
     }
   }
-
+   
   VecAssemblyBegin(b);
   VecAssemblyEnd(b);
   MatAssemblyBegin(A, MAT_FINAL_ASSEMBLY);
   MatAssemblyEnd(A, MAT_FINAL_ASSEMBLY);
-
+  
   // Mam soustavu, ted uz ji jen vyresim
   KSP ksp;
   Vec x;
@@ -159,7 +167,7 @@ int main(int argc, char **argv) {
   KSPSetOperators( ksp , A , A );
   KSPSolve( ksp, b , x ) ;
 
-  // Ted musim z PETSc vymamit reseni
+  // Ted musim z PETSc vymamit reseni (scatter to zero)
   
   PetscFinalize();
   return 0;

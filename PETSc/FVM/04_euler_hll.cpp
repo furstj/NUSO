@@ -133,7 +133,7 @@ double VelocityMag(const Model& W) {
 
 
 Vec CreateGhostedBlockVector(Grid& g, int blockSize) {
-auto dist = boost::any_cast<const Decomposition&>(g.userData());
+  auto dist = boost::any_cast<const Decomposition&>(g.userData());
 
   int n;
   ISLocalToGlobalMappingGetSize(dist.locToGlobMap, &n);
@@ -304,6 +304,7 @@ int main(int argc, char **argv) {
   TSSetType(ts, TSEULER);
   TSSetInitialTimeStep(ts, 0.0, dt);
   TSSetDuration(ts, 10000000, tEnd);
+  TSSetExactFinalTime(ts, TS_EXACTFINALTIME_MATCHSTEP);
   TSSetFromOptions(ts);
   
   TSSolve(ts, u);
