@@ -48,6 +48,7 @@ Software" at the Czech Technical University in Prague.
 * Řešení soustavy rovnic, C++,  [example.cpp](Umfpack/example.cpp)
 * Řešení soustavy rovnic, velká matice,  [poisson3Da.cpp](Umfpack/poisson3Da.cpp)
 * Řešení soustavy rovnic, MKL verze,  [poisson3Da_dss.cpp](Umfpack/poisson3Da_dss.cpp)
+* [poznámky](notebooks/sparse_matrix_ordering.ipynb)
 
 
 ## [PETSc](http://www.mcs.anl.gov/petsc)
