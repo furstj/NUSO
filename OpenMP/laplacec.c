@@ -7,7 +7,7 @@
  * na oblasti ve tvaru jednotkoveho ctverce.
  *
  * Pro reseni vyuzivam metody siti a vysledne rovnice resim
- * Gauss-Seidelvou iteracni metodou. 
+ * Gaussovou-Seidelovou iteracni metodou. 
  *
  **********************************************************************/
 
@@ -53,8 +53,9 @@ int main() {
     
     // 
     niter = 10000;
+#pragma omp parallel private(iter,i,j) 
     for (iter=1; iter<=niter; iter++) {
-#pragma omp for private(i)
+#pragma omp for 
         for (j=1; j<n-1; j++)
 	    for (i=1; i<n-1; i++) {
 	      if ((i+j) % 2 == 0)
@@ -62,16 +63,16 @@ int main() {
 			    u[i+1 + j*n] + u[i + (j+1)*n] - b[i+j*n])/4.0;
 	    }
 
-#pragma omp for private(i)
+#pragma omp for 
         for (j=1; j<n-1; j++)
 	    for (i=1; i<n-1; i++) {
 	      if ((i+j) % 2 == 1)
 		u[i+j*n] = (u[i-1 + j*n] + u[i + (j-1)*n] + 
 			    u[i+1 + j*n] + u[i + (j+1)*n] - b[i+j*n])/4.0;
 	    }
-
+#pragma omp master
 	if (iter % 1000==0)
-	    printf("%i u(0.5,0.5)= %lf\n", iter, u[(n-1)/2 + ((n-1)/2)*n]);
+	  printf("%i u(0.5,0.5)= %lf\n", iter, u[(n-1)/2 + ((n-1)/2)*n]);
     }
 
 

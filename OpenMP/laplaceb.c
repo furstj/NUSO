@@ -7,7 +7,7 @@
  * na oblasti ve tvaru jednotkoveho ctverce.
  *
  * Pro reseni vyuzivam metody siti a vysledne rovnice resim
- * Gauss-Seidelvou iteracni metodou. 
+ * Gaussovou-Seidelovou iteracni metodou. 
  *
  **********************************************************************/
 
