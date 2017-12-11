@@ -28,7 +28,8 @@ int main(int argc, char** argv) {
              DMDA_STENCIL_STAR,
 	     width, height, PETSC_DECIDE, PETSC_DECIDE, 
 	     1, 1, PETSC_NULL, PETSC_NULL, &da);
-
+  DMSetUp(da);
+  
   // Lokalni obraz pole s pridanymi bunkami
   Vec l;
   DMCreateLocalVector(da, &l);    
@@ -75,7 +76,7 @@ int main(int argc, char** argv) {
 
     }
 
-
+  
   // Ulozeni obrazku do pgm formatu
   // Preposlani obrazku na procesor 0
   {

@@ -1,4 +1,21 @@
 #include "petscdmplex.h"
+#include <iostream>
+
+/*
+  Strukturovana sit o rozmerech 4x2
+
+  10----11----12----13----14
+  |      |     |     |     |
+  |  4   |  5  |  6  |  7  |
+  |      |     |     |     |
+  5------6-----7-----8-----9
+  |      |     |     |     |
+  |  0   |  1  |  2  |  3  |
+  |      |     |     |     |
+  0------1-----2-----3-----4
+
+
+ */
 
 int main(int argc, char** argv) {
   int myRank;
@@ -26,10 +43,9 @@ int main(int argc, char** argv) {
   }
 
   DMSetUp(dm);
-
   if (myRank==0) {
 
-    { // Steny definuici bunky
+    { // Steny definujici bunky
       int fid = ncells + nverts;
 
       int fi[nx+1][ny];
@@ -37,18 +53,19 @@ int main(int argc, char** argv) {
 	for (int i=0; i<nx+1; i++) 
 	  fi[i][j] = fid++;
 
-      int fj[nx+1][ny];
+      int fj[nx][ny+1];
       for (int j=0; j<ny+1; j++)
 	for (int i=0; i<nx; i++) 
 	  fj[i][j] = fid++;
       
       for (int j=0; j<ny; j++)
 	for (int i=0; i<nx; i++) {
-	  int v[] = { fi[i][j], fj[i+1][j], fi[i][j+1], fj[i][j] };
+	  int v[] = { fi[i][j], fj[i][j], fi[i+1][j], fj[i][j+1] };
 	  DMPlexSetCone(dm, i+j*nx, v);
 	}
     }
 
+    
     { // Vrcholy definujici steny
       int fid = ncells + nverts;
 
@@ -66,12 +83,15 @@ int main(int argc, char** argv) {
 	  DMPlexSetCone(dm, fid++, v);
 	}
     }
+
+
   }
+
 
   DMPlexSymmetrize(dm);
   DMPlexStratify(dm);
   DMSetDimension(dm, 2);
-
+  
   DMView(dm, PETSC_VIEWER_STDOUT_WORLD);
 
   { DM dmDist;

@@ -19,10 +19,12 @@ application     laplacianFoam;
 
 startFrom       startTime;
 
+//startTime 	0;
 startTime       1;
 
 stopAt          endTime;
 
+//endTime		1;
 endTime         2;
 
 deltaT          0.005;

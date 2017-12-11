@@ -426,8 +426,10 @@ int main(int argc, char **argv) {
   TSSetRHSFunction(ts, NULL, CalculateRHS, &ctx);
   TSSetRHSJacobian(ts, J, J, CalculateJacobian, &ctx);
   TSSetType(ts, TSEULER);
-  TSSetInitialTimeStep(ts, 0.0, dt);
-  TSSetDuration(ts, 10000000, tEnd);
+  TSSetTime(ts, 0.0);
+  TSSetTimeStep(ts, dt);
+  TSSetMaxSteps(ts, 1000000);
+  TSSetMaxTime(ts, tEnd);
   TSSetType(ts, TSBEULER);
   TSSetExactFinalTime(ts, TS_EXACTFINALTIME_MATCHSTEP);
   TSSetFromOptions(ts);

@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
   PetscInitialize( &argc, &argv, (char *)0, 0 );
   MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
 
-  nacti_sit("ctverec.1");
+  nacti_sit("ctverec.2");
 
   int n = node.size();
 

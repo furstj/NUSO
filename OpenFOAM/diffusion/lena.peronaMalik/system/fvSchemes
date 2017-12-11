@@ -35,7 +35,6 @@ laplacianSchemes
 {
     default         none;
     laplacian(c,T) Gauss linear corrected;
-    laplacian((DT|(1+pow((mag(grad(T))|K),p))),T) Gauss linear corrected;
 }
 
 interpolationSchemes

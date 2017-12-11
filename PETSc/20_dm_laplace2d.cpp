@@ -90,8 +90,8 @@ int main(int argc, char** argv) {
   DM da;
   DMDACreate2d(PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE,
 	       DMDA_STENCIL_STAR,n,n,PETSC_DECIDE,PETSC_DECIDE,1,1,0,0,&da);
-
-
+  DMSetUp(da);
+  
   // Sestaveni matice
   Mat A = CreateLaplacianMatrix(da);
   

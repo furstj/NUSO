@@ -8,3 +8,5 @@ CFLAGS  += `pkg-config --cflags PETSc`
 CXXFLAGS  += `pkg-config --cflags PETSc` 
 LDFLAGS += `pkg-config --libs PETSc`
 
+clean:
+	rm -f simple2 simple unsteady
