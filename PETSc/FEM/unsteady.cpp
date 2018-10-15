@@ -214,7 +214,7 @@ int main(int argc, char **argv) {
   /* ==================================================================
      Ted mam sestavenou ulohu
      
-     B u_t = A u
+     B u_t = A u + f
 
      s pocatecni podminkou ulozenou v u
 

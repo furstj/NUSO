@@ -41,7 +41,8 @@ struct AppCtx {
              DMDA_STENCIL_STAR,
 	     width, height, PETSC_DECIDE, PETSC_DECIDE, 
 	     1, 1, PETSC_NULL, PETSC_NULL, &da);
-
+    DMSetUp(da);
+    
     // Vytvoreni lokalniho pracovniho pole 
     DMCreateLocalVector(da, &local);    
   }
@@ -160,9 +161,12 @@ int main(int argc, char** argv) {
   // Nastaveni parametru resice
   double dt = 0.1, t_end=2;
   
-  TSSetInitialTimeStep(ts,0.0,dt);
   TSSetType(ts, TSBEULER);
-  TSSetDuration(ts, 1000, t_end);
+
+  TSSetTime(ts, 0.0);
+  TSSetTimeStep(ts, dt);
+  TSSetMaxSteps(ts, 1000);
+  TSSetMaxTime(ts, t_end);
   TSSetExactFinalTime(ts,TS_EXACTFINALTIME_STEPOVER);
 
   // Nacteni parametru z prikazove radky

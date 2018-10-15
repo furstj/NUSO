@@ -6,9 +6,8 @@ CFLAGS  += `pkg-config --cflags PETSc`
 CXXFLAGS  += `pkg-config --cflags PETSc`
 LDFLAGS += `pkg-config --libs PETSc`
 
-all: 01_dmplex_basic 02_dmplex_gmsh
+all: blur blur-ts
 
 clean:
-	rm -f 01_dmplex_basic 02_dmplex_gmsh
-
+	rm -f blur blur-ts
 

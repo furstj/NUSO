@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 			    "phi",
 			    runTime.timeName(),
 			    mesh,
-			    IOobject::READ_IF_PRESENT,
+			    IOobject::NO_READ,
 			    IOobject::AUTO_WRITE
 			    ),
 			   

@@ -56,6 +56,10 @@ Software" at the Czech Technical University in Prague.
 ## METIS
 * [poznámky](notebooks/spectral_bisection.ipynb)
 
+## [Julia](www.julialang.org)
+* Intervalová aritmetika, [skript](notebooks/intervaly.ipbn)
+* Implementace neuronové sítě pomocí knihovny Knet, [skript](notebooks/neuronova_sit_1.ipbn)
+
 ## Zápočtové úlohy
 
 * Matice *L* je pěti-diagonální matice o rozměrech $n \times n$, 

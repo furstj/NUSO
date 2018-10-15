@@ -251,8 +251,10 @@ int main(int argc, char **argv) {
   TSSetSolution(ts, u);
   TSSetRHSFunction(ts, NULL, CalculateRHS, &ctx);
   TSSetType(ts, TSEULER);
-  TSSetInitialTimeStep(ts, 0.0, dt);
-  TSSetDuration(ts, 10000000, tEnd);
+  TSSetTime(ts, 0.0);
+  TSSetTimeStep(ts, dt);
+  TSSetMaxSteps(ts, 1000000);
+  TSSetMaxTime(ts, tEnd);
   TSSetExactFinalTime(ts, TS_EXACTFINALTIME_MATCHSTEP);
   TSSetFromOptions(ts);
   
