@@ -24,8 +24,8 @@ int main(int argc,char **args)
     int l = i2 - i1;
     int a[l], p[l];
     for (int i=i1; i<i2; i++) {
-      p[i-i1] = i;
-      a[i-i1] = i / 2 + n/2 * (i%2);
+      a[i-i1] = i;
+      p[i-i1] = i / 2 + n/2 * (i%2);
     }
     AOCreateBasic(PETSC_COMM_WORLD, l, a, p, &ao);  
   }

@@ -42,8 +42,8 @@ int main(int argc,char **args)
     for (i=0; i<n; i++) VecSetValue(y, i, (double)i, INSERT_VALUES);
   
   /* Provedeni komunikaci */
-  //VecAssemblyBegin(y); 
-  //VecAssemblyEnd(y);
+  VecAssemblyBegin(y); 
+  VecAssemblyEnd(y);
 
   PetscPrintf(PETSC_COMM_WORLD, "y = ");
   VecView(y, PETSC_VIEWER_STDOUT_WORLD);

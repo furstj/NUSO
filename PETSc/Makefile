@@ -15,7 +15,7 @@ clean:
 		30_snes_trivial 31_snes_mf \
 		40_ts_trivial 41_ts_implicit
 
-0x_vector: 01_vector 02_vector 03_vector 04_vector 05_vector
+0x_vector: 01_vector 01_vector_bad 02_vector 03_vector 04_vector 05_vector
 
 1x_matrix: 10_matrix 11_matrix 12_matrix_metis 
 
