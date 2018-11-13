@@ -52,13 +52,16 @@ Software" at the Czech Technical University in Prague.
 
 
 ## [PETSc](http://www.mcs.anl.gov/petsc)
+* Metoda sdružených gradientů, [teorie](notebooks/conjugate_gradients.ipynb)
+* GMRES metoda, [teorie](notebooks/gmres.ipynb)
+* Příklady implementace metod pomoci GMRES [src](src)
 
 ## METIS
 * [poznámky](notebooks/spectral_bisection.ipynb)
 
 ## [Julia](www.julialang.org)
-* Intervalová aritmetika, [skript](notebooks/intervaly.ipbn)
-* Implementace neuronové sítě pomocí knihovny Knet, [skript](notebooks/neuronova_sit_1.ipbn)
+* Intervalová aritmetika, [skript](notebooks/intervaly.ipynb)
+* Implementace neuronové sítě pomocí knihovny Knet, [skript](notebooks/neuronova_sit_1.ipynb)
 
 ## Zápočtové úlohy
 
