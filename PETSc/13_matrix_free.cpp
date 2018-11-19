@@ -13,6 +13,8 @@
 
 #include <petscvec.h>
 #include <petscmat.h>
+#include <petscksp.h>
+#include <fstream>
 
 struct MyContext
 {
@@ -23,33 +25,30 @@ struct MyContext
 PetscErrorCode myMatMul(Mat mfMatrix, Vec x, Vec y)
 {
     MyContext* ctx;
-    MatShellGetContext(mvMatrix, (void**) &ctx);
+    MatShellGetContext(mfMatrix, (void**) &ctx);
     size_t nx = ctx->nx;
     size_t ny = ctx->ny;
 
-    PetsScalar *xp, *yp;
-    VecGetArray(x, &xp);
+    const PetscScalar *xp;
+    PetscScalar *yp;
+    
+    VecGetArrayRead(x, &xp);
     VecGetArray(y, &yp);
 
-    // Internal points:
-    for (size_t i=1; i<nx-1; i++)
-        for (size_t j=1; i<ny-1; j++)
-            yp[i+j*nx] = 4*xp[i+j*nx]
-                - xp[i+1+j*nx] - xp[i-1+j*nx] - xp[i+(j+1)*nx] - xp[i+(j-1)*nx];
+    // Laplacian in internal points:
+    for (size_t i=0; i<nx; i++)
+        for (size_t j=0; j<ny; j++)
+        {
+            yp[i+j*nx] = 4*xp[i+j*nx];
+            if (i>0)    yp[i+j*nx] -= xp[i-1+j*nx];
+            if (i<nx-1) yp[i+j*nx] -= xp[i+1+j*nx];
+            if (j>0)    yp[i+j*nx] -= xp[i+(j-1)*nx];
+            if (j<ny-1) yp[i+j*nx] -= xp[i+(j+1)*nx];
+        };
 
-    // Boundary points
-    for (size_t i=0; i<nx; i++) {
-        yp[i+0*nx] = 0.0;
-        yp[i+(ny-1)*nx] = 0.0;
-    }
-    for (size_t j=0; j<ny; j++) {
-        yp[0+j*nx] = 0.0;
-        yp[nx-1+j*nx] = 0.0;
-    }
-
-    VecRestoreArray(x, &xp);
+    VecRestoreArrayRead(x, &xp);
     VecRestoreArray(y, &yp);
-
+    
     return 0;
 }
 
@@ -73,41 +72,65 @@ int main(int argc,char **args)
   /* Vytvoreni ulohy o velikosti 100x100 bodu */
   MyContext ctx {100, 100};
     
-  Vec x;
-  VecCreateMPI(PETSC_COMM_WORLD, PETSC_DECIDE, ctx->nx*ctx->ny, &x);
-  
-  /* Nastaveni vsech prvku x na 1.0 */
-  VecSet(x, 1.0);
+  Vec x,f;
+  VecCreateMPI(PETSC_COMM_WORLD, ctx.nx*ctx.ny, PETSC_DETERMINE, &x);
+  VecSet(x, 0.0);
+  VecDuplicate(x, &f);
 
-  // Vytvoreni matice o velkosti 10x10
+  // Vypocet prave strany
+  VecSet(f, 1.0/(ctx.nx*ctx.nx));
+
+  // Vytvoreni matrix-free matice
   Mat A;
-  MatCreate(PETSC_COMM_WORLD, &A);
-  MatSetSizes(A, PETSC_DECIDE, PETSC_DECIDE, 10, 10);
-  MatSetFromOptions(A);
+  MatCreateShell(
+      PETSC_COMM_WORLD, ctx.nx*ctx.ny, ctx.nx*ctx.ny,
+      PETSC_DETERMINE, PETSC_DETERMINE, &ctx, &A);
+
   MatSetUp(A);
+  MatShellSetOperation(A, MATOP_MULT, (void(*)(void))myMatMul);
 
-  // Nastaveni prvku na 1, -2, 1
-  PetscInt istart, iend;
-  MatGetOwnershipRange(A, &istart, &iend);
-  for (int i=istart; i<iend; i++) {
-    if (i>0) MatSetValue(A, i, i-1, 1, INSERT_VALUES);
-    MatSetValue(A, i, i, -2.0, INSERT_VALUES);
-    if (i<9) MatSetValue(A, i, i+1, 1, INSERT_VALUES);
+  // Vytvoreni predpodminovace
+  Mat P;
+  MatCreate(PETSC_COMM_WORLD, &P);
+  MatSetSizes(P, ctx.nx*ctx.ny, ctx.nx*ctx.ny, PETSC_DETERMINE, PETSC_DETERMINE);
+  MatSetFromOptions(P);
+  MatSetUp(P);
+  for (size_t i=0; i<ctx.nx*ctx.ny; i++)
+      MatSetValue(P,i,i,4.0,INSERT_VALUES);
+  MatAssemblyBegin(P, MAT_FINAL_ASSEMBLY);
+  MatAssemblyEnd(P, MAT_FINAL_ASSEMBLY);
+
+  // Reseni soustavy s matrix-free matici
+  KSP solver;
+  KSPCreate(PETSC_COMM_WORLD, &solver);
+  KSPSetOperators(solver, A, P);
+
+  KSPSetType(solver, KSPCG);
+  PC prec;
+  KSPGetPC(solver,&prec);
+  PCSetType(prec,PCJACOBI);
+  
+  KSPSetFromOptions(solver);
+  KSPSetUp(solver);
+
+  KSPSolve(solver, f, x);
+
+  std::ofstream of("13_matrix_free.dat");
+  const PetscScalar *xp;
+  VecGetArrayRead(x, &xp);
+  for (int i=0; i<ctx.nx; i++) {
+      for (int j=0; j<ctx.ny; j++)
+          of << "\t" << xp[i+j*ctx.nx] << std::endl;
+      of << std::endl;
   }
-  MatAssemblyBegin(A, MAT_FINAL_ASSEMBLY);
-  MatAssemblyEnd(A, MAT_FINAL_ASSEMBLY);
-
-  MatView(A, PETSC_VIEWER_STDOUT_WORLD);
-
-  // Vypocet y=A*x
-  Vec y;
-  VecDuplicate(x, &y);
-  MatMult(A, x, y);
-  VecView(y, PETSC_VIEWER_STDOUT_WORLD);
- 
+  VecRestoreArrayRead(x, &xp);
+      
+  
+  KSPDestroy(&solver);
+  MatDestroy(&P);
   MatDestroy(&A);
   VecDestroy(&x);
-  VecDestroy(&y);
+  VecDestroy(&f);
 
   CHKERRQ( PetscFinalize() );
   

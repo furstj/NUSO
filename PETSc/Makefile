@@ -17,7 +17,7 @@ clean:
 
 0x_vector: 01_vector 01_vector_bad 02_vector 03_vector 04_vector 05_vector
 
-1x_matrix: 10_matrix 11_matrix 12_matrix_metis 
+1x_matrix: 10_matrix 11_matrix 12_matrix_metis 13_matrix_free
 
 2x_dm: 20_dm_laplace2d
 
